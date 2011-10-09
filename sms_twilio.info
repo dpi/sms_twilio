@@ -2,4 +2,6 @@ name = "Twilio"
 description = "Allows the SMS Framework to use twilio.com as a gateway."
 package = SMS Framework
 dependencies[] = sms
-core = 6.x
+core = 7.x
+
+files[] = sms_twilio.module
