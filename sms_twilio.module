@@ -56,15 +56,6 @@ function sms_twilio_admin_form($configuration) {
     '#maxlength' => 255,
     '#default_value' => !empty($configuration['sms_twilio_path']) ? $configuration['sms_twilio_path'] : 'sites/all/libraries/twilio',
   );
-  $form['sms_twilio_incoming_path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Twilio incoming URI path'),
-    '#description' => t('The URI that Twilio will post SMS messages to. This, plus your hostname, will be the URL you enter in your Twillio "Phone Numbers" configuration.'),
-    '#size' => 40,
-    '#maxlength' => 255,
-    '#default_value' => !empty($configuration['sms_twilio_incoming_path']) ? $configuration['sms_twilio_incoming_path'] : 'sms/twilio/incoming',
-  );
-
   return $form;
 }
 
@@ -162,10 +153,7 @@ function sms_twilio_command($command = 'auth', $data = array(), $config = NULL, 
 function sms_twilio_menu() {
   $items = array();
 
-  if (!isset($configuration['sms_twilio_incoming_path'])) {
-    $configuration['sms_twilio_incoming_path'] = 'sms/twilio/incoming';
-  }
-  $items[$configuration['sms_twilio_incoming_path']] = array(
+  $items['sms/twilio/incoming' ] = array(
     'title' => 'Incoming Twilio SMS',
     'page callback' => 'sms_twilio_incoming',
     'access callback' => TRUE,
@@ -185,7 +173,7 @@ function sms_twilio_incoming() {
     // Details on validating the Twilio signature: http://www.twilio.com/docs/security
     $gateway = sms_gateways('gateway', 'twilio');
     $config = $gateway['configuration'];
-    $string_to_sign = $base_url . "/" . $config['sms_twilio_incoming_path'];
+    $string_to_sign = $base_url . "/sms/twilio/incoming";
     ksort($_POST);
     foreach ($_POST as $key => $value) {
       $string_to_sign .= $key . $value;
