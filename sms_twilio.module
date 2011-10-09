@@ -24,17 +24,10 @@ function sms_twilio_gateway_info() {
  * Admin/settings form.
  */
 function sms_twilio_admin_form($configuration) {
-
-  //$form['sms_twilio_balance'] = array(
-  //  '#type' => 'item',
-  //  '#title' => t('Current balance'),
-  //  '#value' => sms_twilio_balance(),
-  //);
-
   $form['sms_twilio_api_sid'] = array(
     '#type' => 'textfield',
     '#title' => t('Account SID'),
-    '#description' => t('Twilio account sid.'),
+    '#description' => t('Twilio Account SID - the 34 character string beginning with AC'),
     '#size' => 40,
     '#maxlength' => 255,
     '#default_value' => !empty($configuration['sms_twilio_api_sid']) ? $configuration['sms_twilio_api_sid'] : '',
@@ -42,7 +35,7 @@ function sms_twilio_admin_form($configuration) {
   $form['sms_twilio_api_auth_token'] = array(
     '#type' => 'textfield',
     '#title' => t('API ID'),
-    '#description' => t('Twilio auth token.'),
+    '#description' => t('Twilio auth token - <a href="https://www.twilio.com/user/account">available on your dashboard</a>'),
     '#size' => 40,
     '#maxlength' => 255,
     '#default_value' => !empty($configuration['sms_twilio_api_auth_token']) ? $configuration['sms_twilio_api_auth_token'] : '',
@@ -50,7 +43,7 @@ function sms_twilio_admin_form($configuration) {
   $form['sms_twilio_number'] = array(
     '#type' => 'textfield',
     '#title' => t('Number'),
-    '#description' => t('The number of your Twilio account.'),
+    '#description' => t('A <a href="https://www.twilio.com/user/account/phone-numbers" target="_new">phone number</a> from your Twilio account'),
     '#size' => 40,
     '#maxlength' => 255,
     '#default_value' => !empty($configuration['sms_twilio_number']) ? $configuration['sms_twilio_number'] : '',
@@ -58,7 +51,7 @@ function sms_twilio_admin_form($configuration) {
   $form['sms_twilio_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Twilio library path'),
-    '#description' => t('The path to the twilio library.'),
+    '#description' => t('The path to the twilio library'),
     '#size' => 40,
     '#maxlength' => 255,
     '#default_value' => !empty($configuration['sms_twilio_path']) ? $configuration['sms_twilio_path'] : 'sites/all/libraries/twilio',
@@ -92,7 +85,6 @@ function sms_twilio_send_form() {
     '#options' => sms_country_codes(),
     '#default_value' => -1,
   );
-
   return $form;
 }
 
