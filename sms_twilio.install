@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * Implements hook_requirements().
+ */
+function sms_twilio_requirements($phase) {
+  $requirements = [];
+
+  if (!class_exists('\Twilio\Rest\Client')) {
+    $requirements['sms_twilio_dependencies'] = [
+      'title' => t('Twilio'),
+      'description' => t('Twilio has unmet Composer dependencies. Read the <a href="@url">documentation</a> on how to install them.', [
+        '@url' => 'https://www.drupal.org/node/2627292',
+      ]),
+      'severity' => REQUIREMENT_ERROR,
+    ];
+  }
+
+  return $requirements;
+}

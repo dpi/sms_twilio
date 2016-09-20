@@ -1,0 +1,28 @@
+{
+  "name": "drupal/sms_twilio",
+  "description": "Integrates Twilio with SMS Framework.",
+  "type": "drupal-module",
+  "license": "GPL-2.0",
+  "homepage": "https://github.com/dpi/sms_twilio",
+  "support": {
+    "issues": "https://github.com/dpi/sms_twilio/issues",
+    "source": "https://github.com/dpi/sms_mailup"
+  },
+  "authors": [
+    {
+      "name": "Daniel Phin",
+      "email": "pro@danielph.in",
+      "homepage": "http://danielph.in",
+      "role": "Maintainer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Drupal\\sms_twilio\\": "src"
+    }
+  },
+  "minimum-stability": "dev",
+  "require": {
+    "twilio/sdk": "5.4.*"
+  }
+}

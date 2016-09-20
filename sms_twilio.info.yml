@@ -1,0 +1,4 @@
+name: Twilio for SMS Framework
+type: module
+description: 'Integrates Twilio with SMS Framework.'
+core: 8.x
