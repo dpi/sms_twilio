@@ -3,14 +3,21 @@
 namespace Drupal\sms_twilio\Plugin\SmsGateway;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\sms\Direction;
 use Drupal\sms\Message\SmsDeliveryReport;
+use Drupal\sms\Message\SmsMessage;
 use Drupal\sms\Message\SmsMessageResultStatus;
 use Drupal\sms\Message\SmsMessageReportStatus;
+use Drupal\sms\Message\SmsMessageStatus;
 use Drupal\sms\Plugin\SmsGatewayPluginBase;
 use Drupal\sms\Message\SmsMessageInterface;
 use Drupal\sms\Message\SmsMessageResult;
+use Drupal\sms\Plugin\SmsGatewayPluginIncomingInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Twilio\Exceptions\RestException;
 use Twilio\Rest\Client;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Twilio\Security\RequestValidator;
 
 /**
  * @SmsGateway(
@@ -20,7 +27,7 @@ use Twilio\Rest\Client;
  *   reports_push = TRUE,
  * )
  */
-class Twilio extends SmsGatewayPluginBase {
+class Twilio extends SmsGatewayPluginBase implements SmsGatewayPluginIncomingInterface {
 
   /**
    * {@inheritdoc}
@@ -145,4 +152,64 @@ class Twilio extends SmsGatewayPluginBase {
     return $result;
   }
 
+  /**
+   * @inheritDoc
+   */
+  public function incoming(SmsMessageInterface $sms_message) {
+    $report = (new SmsDeliveryReport())
+      ->setStatusMessage($sms_message->getOption('data')['SmsStatus']);
+    return (new SmsMessageResult())
+      ->setReports([$report]);
+  }
+
+  private function validate(Request $request) {
+    $token = $this->getConfiguration()['auth_token'];
+    $signature = $request->headers->get('x-twilio-signature');
+    $url = $request->getSchemeAndHttpHost() . $request->getRequestUri();
+    if (!(new RequestValidator($token))->validate($signature, $url, $request->request->all())) {
+      throw new AccessDeniedHttpException();
+    }
+  }
+
+  private function processMedia(array $params) {
+    $i = 0;
+    $files = [];
+    while ($i < $params['NumMedia']) {
+      $files[] = [
+        'url' => $params['MediaUrl' . $i],
+        'content-type' => $params['MediaContentType' . $i],
+      ];
+      $i++;
+    }
+    return $files;
+  }
+
+  /**
+   * Validates the webhook request and creates an SMS message object.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *
+   * @throws \Exception
+   *
+   * @return \Drupal\sms\Message\SmsMessage
+   */
+  public function buildIncomingFromRequest(Request $request) {
+    try {
+      $this->validate($request);
+    }
+    catch (\Exception $e) {
+      throw $e;
+    }
+    $params = $request->request->all();
+    $sms = (new SmsMessage())
+      ->setMessage(trim($params['Body']))
+      ->setDirection(Direction::INCOMING)
+      ->setOption('data', $params)
+      ->setSenderNumber($params['From'])
+      ->addRecipients([$params['To']]);
+    if ($files = $this->processMedia($params)) {
+      $sms->setOption('media', $files);
+    }
+    return $sms;
+  }
 }
