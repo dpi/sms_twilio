@@ -24,7 +24,7 @@ class SmsUtility {
    * 
    * @throws \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
    */
-  static public function validate(Request $request, SmsGatewayPluginIncomingInterface $plugin) {
+  public static function validate(Request $request, SmsGatewayPluginIncomingInterface $plugin) {
     /** @var \Drupal\Component\Plugin\ConfigurablePluginInterface $plugin */
     $token = $plugin->getConfiguration()['auth_token'];
     $signature = $request->headers->get('x-twilio-signature');
@@ -34,6 +34,12 @@ class SmsUtility {
     }
   }
 
+  /**
+   * Helper function for processing attached SMS/MMS media.
+   * 
+   * @param array $params The original payload from Twilio.
+   * @return array An array of files, with url and content-type keys.
+   */
   public static function processMedia(array $params) {
     $i = 0;
     $files = [];
