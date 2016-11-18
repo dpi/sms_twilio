@@ -184,7 +184,7 @@ function sms_twilio_menu() {
  * Informs the SMS Framework of the incoming SMS
  */
 function sms_twilio_incoming() {
-  if (sms_twilio_validate_incoming_request_paramaters()) {
+  if (sms_twilio_validate_incoming_request_parameters()) {
     if (sms_twilio_validate_incoming()) {
       watchdog('sms_twilio', 'Handling incoming sms from ' . check_plain($_REQUEST['From']) . ': ' . check_plain($_REQUEST['Body']));
       $opts = array();
@@ -194,11 +194,18 @@ function sms_twilio_incoming() {
       $opts['fromstate'] = $_REQUEST['FromState'];
       $opts['fromzip'] = $_REQUEST['FromZip'];
       sms_incoming(check_plain($_REQUEST['From']), check_plain($_REQUEST['Body']), $opts);
+
+      return TRUE;
     }
     else {
       watchdog('sms_twilio', 'Incoming sms from @from has a bad Twilio signature - dropping!', array('@from' => check_plain($_REQUEST['From'])), WATCHDOG_WARNING);
     }
   }
+  else {
+    watchdog('sms_twilio', 'Invalid parameters received.');
+  }
+
+  return FALSE;
 }
 
 /**
