@@ -3,17 +3,22 @@
   "description": "Integrates Twilio with SMS Framework.",
   "type": "drupal-module",
   "license": "GPL-2.0",
-  "homepage": "https://github.com/dpi/sms_twilio",
+  "homepage": "https://www.drupal.org/project/sms_twilio",
   "support": {
-    "issues": "https://github.com/dpi/sms_twilio/issues",
-    "source": "https://github.com/dpi/sms_twilio"
+    "issues": "https://www.drupal.org/project/issues/sms_twilio",
+    "source": "http://cgit.drupalcode.org/sms_twilio"
   },
   "authors": [
+    {
+      "name": "Chris Rockwell",
+      "homepage": "https://twitter.com/chrisrockwell",
+      "role": "Maintainer"
+    },
     {
       "name": "Daniel Phin",
       "email": "pro@danielph.in",
       "homepage": "http://danielph.in",
-      "role": "Maintainer"
+      "role": "Developer"
     }
   ],
   "autoload": {
