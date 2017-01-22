@@ -27,8 +27,8 @@
     }
   },
   "require": {
-    "drupal/core": "~8.0",
-    "drupal/sms": "~8.0",
+    "drupal/core": "^8.0",
+    "drupal/smsframework": "^1.0@beta",
     "twilio/sdk": "5.4.*"
   }
 }
