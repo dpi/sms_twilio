@@ -3,9 +3,9 @@
 namespace Drupal\sms_twilio\Utility;
 
 use Drupal\Core\Url;
-use Drupal\sms_twilio\Plugin\SmsGateway\Twilio;
 use Symfony\Component\HttpFoundation\Request;
 use Twilio\Security\RequestValidator;
+use Drupal\Component\Plugin\ConfigurablePluginInterface;
 
 /**
  * Class TwilioValidation
@@ -15,11 +15,17 @@ use Twilio\Security\RequestValidator;
  * @package Drupal\sms_twilio\Utility
  */
 class TwilioValidation {
+
   /**
    * Validate an incoming message using Twilio SDK
    * @see https://www.twilio.com/docs/api/security
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request The request object.
+   * @param \Drupal\Component\Plugin\ConfigurablePluginInterface The Twilio plugin.
+   *
+   * @return boolean TRUE if the request validates, FALSE if not.
    */
-  public static function validateIncoming(Request $request, Twilio $sms_gateway) {
+  public static function validateIncoming(Request $request, ConfigurablePluginInterface $sms_gateway) {
     $url = Url::fromRoute('sms.incoming.receive.twilio')
       ->setAbsolute()
       ->toString();
@@ -30,4 +36,5 @@ class TwilioValidation {
 
     return $validator->validate($signature, $url, $_REQUEST);
   }
+
 }

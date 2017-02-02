@@ -178,9 +178,7 @@ class Twilio extends SmsGatewayPluginBase {
     if ($files = TwilioMedia::processMedia($params)) {
       $sms->setOption('media', $files);
     }
-    try {
-      TwilioValidation::validateIncoming($request, $this);
-    } catch (\Exception $e) {
+    if(!TwilioValidation::validateIncoming($request, $this)) {
       $report->setStatus(SmsMessageReportStatus::REJECTED);
       $report->setStatusMessage($e->getMessage());
       $result->setError($e->getCode());
