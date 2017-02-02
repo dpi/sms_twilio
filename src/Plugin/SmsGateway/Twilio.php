@@ -3,12 +3,20 @@
 namespace Drupal\sms_twilio\Plugin\SmsGateway;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\sms\Direction;
+use Drupal\sms\Entity\SmsGatewayInterface;
 use Drupal\sms\Message\SmsDeliveryReport;
+use Drupal\sms\Message\SmsMessage;
 use Drupal\sms\Message\SmsMessageResultStatus;
 use Drupal\sms\Message\SmsMessageReportStatus;
 use Drupal\sms\Plugin\SmsGatewayPluginBase;
 use Drupal\sms\Message\SmsMessageInterface;
 use Drupal\sms\Message\SmsMessageResult;
+use Drupal\sms\SmsProcessingResponse;
+use Drupal\sms_twilio\Utility\TwilioMedia;
+use Drupal\sms_twilio\Utility\TwilioValidation;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Twilio\Exceptions\RestException;
 use Twilio\Rest\Client;
 
@@ -143,6 +151,60 @@ class Twilio extends SmsGatewayPluginBase {
     }
 
     return $result;
+  }
+
+  /**
+   * Validates the webhook request and creates an SMS message object.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *
+   * @return \Drupal\sms\Message\SmsMessage
+   */
+  protected function buildIncomingFromRequest(Request $request) {
+    $result = new SmsMessageResult();
+    $params = $request->request->all();
+    $report = (new SmsDeliveryReport())
+      ->setRecipient($params['To'])
+      ->setStatus(SmsMessageReportStatus::DELIVERED);
+    $sms = (new SmsMessage())
+      ->setMessage(trim($params['Body']))
+      ->setDirection(Direction::INCOMING)
+      ->setOption('data', $params)
+      ->setSenderNumber($params['From'])
+      ->addRecipients([$params['To']]);
+    if ($files = TwilioMedia::processMedia($params)) {
+      $sms->setOption('media', $files);
+    }
+    try {
+      TwilioValidation::validateIncoming($request, $this);
+    } catch (\Exception $e) {
+      $report->setStatus(SmsMessageReportStatus::REJECTED);
+      $report->setStatusMessage($e->getMessage());
+      $result->setError($e->getCode());
+      $result->setErrorMessage($e->getMessage());
+    }
+    $result->setReports([$report]);
+    $sms->setResult($result);
+
+    return $sms;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function processIncoming(Request $request, SmsGatewayInterface $sms_gateway) {
+    $task = new SmsProcessingResponse();
+    $sms = $this->buildIncomingFromRequest($request);
+    $sms->setGateway($sms_gateway);
+    $response = new Response();
+    if ($sms->getResult()->getError()) {
+      $response = new Response($sms->getResult()->getErrorMessage(), $sms->getResult()->getError());
+    }
+    $task->setMessages([$sms]);
+    $task->setResponse($response);
+
+    return $task;
   }
 
 }
