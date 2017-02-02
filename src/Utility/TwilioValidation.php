@@ -34,7 +34,7 @@ class TwilioValidation {
 
     $validator = new RequestValidator($token);
 
-    return $validator->validate($signature, $url, $_REQUEST);
+    return $validator->validate($signature, $url, $request->request->all());
   }
 
 }
