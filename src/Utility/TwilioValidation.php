@@ -1,17 +1,17 @@
 <?php
-/**
- * @file contains TwilioValidator.php
- * Defines methods for validating Twilio messages
- */
 
 namespace Drupal\sms_twilio\Utility;
+
 use Drupal\Core\Url;
 use Drupal\sms_twilio\Plugin\SmsGateway\Twilio;
 use Symfony\Component\HttpFoundation\Request;
 use Twilio\Security\RequestValidator;
 
 /**
- * Class TwilioValidator
+ * Class TwilioValidation
+ *
+ * Methods for validating incoming webhook POST events from Twilio.
+ *
  * @package Drupal\sms_twilio\Utility
  */
 class TwilioValidation {

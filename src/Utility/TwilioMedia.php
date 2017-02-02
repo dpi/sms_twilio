@@ -1,12 +1,14 @@
 <?php
-/**
- * @file contains TwilioMedia.php
- * Defines methods for dealing with Twilio media
- */
 
 namespace Drupal\sms_twilio\Utility;
 
-
+/**
+ * Class TwilioMedia
+ *
+ * Contains methods for working with media sent by SMS.
+ *
+ * @package Drupal\sms_twilio\Utility
+ */
 class TwilioMedia {
 
   /**
