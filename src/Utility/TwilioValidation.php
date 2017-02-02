@@ -29,7 +29,7 @@ class TwilioValidation {
     $url = Url::fromRoute('sms.incoming.receive.twilio')
       ->setAbsolute()
       ->toString();
-    $signature = $request->server->get('HTTP_X_TWILIO_SIGNATURE');
+    $signature = $request->server->get('x-twilio-signature');
     $token = $sms_gateway->getConfiguration()['auth_token'];
 
     $validator = new RequestValidator($token);
