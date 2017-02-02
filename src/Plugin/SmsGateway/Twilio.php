@@ -13,11 +13,12 @@ use Drupal\sms\Plugin\SmsGatewayPluginBase;
 use Drupal\sms\Message\SmsMessageInterface;
 use Drupal\sms\Message\SmsMessageResult;
 use Drupal\sms\SmsProcessingResponse;
+use Drupal\sms_twilio\Utility\TwilioMedia;
+use Drupal\sms_twilio\Utility\TwilioValidation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twilio\Exceptions\RestException;
 use Twilio\Rest\Client;
-use Drupal\sms_twilio\SmsUtility;
 
 /**
  * @SmsGateway(
@@ -149,37 +150,18 @@ class Twilio extends SmsGatewayPluginBase {
     }
 
     if ($report->getStatus()) {
-      $result->setReports([$report]);
+      $result->addReport($report);
     }
 
     return $result;
   }
 
   /**
-   * Process a SMS message from Twilio.
-   *
-   * @param \Drupal\sms\Message\SmsMessageInterface $sms_message
-   *   A SMS message, with the original Twilio payload optionally set as the
-   *   'data' option on the SmsMessage object.
-   *
-   * @return \Drupal\sms\Message\SmsMessageResult
-   *   The result of receiving the message.
-   */
-  public function incoming(SmsMessageInterface $sms_message) {
-    $report = new SmsDeliveryReport();
-    if ($sms_message->getOption('data') && !empty($sms_message->getOption('data')['SmsStatus'])) {
-      $report->setStatusMessage($sms_message->getOption('data')['SmsStatus']);
-    }
-    return (new SmsMessageResult())
-      ->setReports([$report]);
-  }
-
-  /**
    * Validates the webhook request and creates an SMS message object.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param \Symfony\Component\HttpFoundation\Request $request The current request.
    *
-   * @return \Drupal\sms\Message\SmsMessage
+   * @return \Drupal\sms\Message\SmsMessage The parsed message.
    */
   protected function buildIncomingFromRequest(Request $request) {
     $result = new SmsMessageResult();
@@ -193,18 +175,18 @@ class Twilio extends SmsGatewayPluginBase {
       ->setOption('data', $params)
       ->setSenderNumber($params['From'])
       ->addRecipients([$params['To']]);
-    if ($files = SmsUtility::processMedia($params)) {
+    if ($files = TwilioMedia::processMedia($params)) {
       $sms->setOption('media', $files);
     }
     try {
-      SmsUtility::validate($request, $this);
+      TwilioValidation::validateIncoming($request, $this);
     } catch (\Exception $e) {
       $report->setStatus(SmsMessageReportStatus::REJECTED);
       $report->setStatusMessage($e->getMessage());
       $result->setError($e->getCode());
       $result->setErrorMessage($e->getMessage());
     }
-    $result->setReports([$report]);
+    $result->addReport($report);
     $sms->setResult($result);
     return $sms;
   }
@@ -212,10 +194,10 @@ class Twilio extends SmsGatewayPluginBase {
   /**
    * Callback for processing incoming messages.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   * @param \Drupal\sms\Entity\SmsGatewayInterface $gateway
+   * @param \Symfony\Component\HttpFoundation\Request $request The active request.
+   * @param \Drupal\sms\Entity\SmsGatewayInterface $gateway The SMS gateway.
    *
-   * @return \Drupal\sms\SmsProcessingResponse
+   * @return \Drupal\sms\SmsProcessingResponse The processing response.
    */
   public function processIncoming(Request $request, SmsGatewayInterface $sms_gateway) {
     $task = new SmsProcessingResponse();
