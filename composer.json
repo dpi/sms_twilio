@@ -32,6 +32,6 @@
     "twilio/sdk": "5.4.*"
   },
   "suggest": {
-    "drupal/smsframework": "Provides the SmsGateway Plugin annotation."
+    "drupal/smsframework": "Provides integration with SMS Framework"
   }
 }
