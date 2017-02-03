@@ -118,6 +118,7 @@ class Twilio extends SmsGatewayPluginBase {
     ];
 
     $report = new SmsDeliveryReport();
+    $report->setRecipient($recipient);
     try {
       $message = $client->messages->create($recipient, $options);
       $report->setStatus(SmsMessageReportStatus::QUEUED);
