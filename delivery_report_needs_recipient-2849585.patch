@@ -1,0 +1,12 @@
+diff --git a/src/Plugin/SmsGateway/Twilio.php b/src/Plugin/SmsGateway/Twilio.php
+index 44c0b70..b5bd06b 100644
+--- a/src/Plugin/SmsGateway/Twilio.php
++++ b/src/Plugin/SmsGateway/Twilio.php
+@@ -108,6 +108,7 @@ public function send(SmsMessageInterface $sms_message) {
+     ];
+ 
+     $report = new SmsDeliveryReport();
++    $report->setRecipient($recipient);
+     try {
+       $message = $client->messages->create($recipient, $options);
+       $report->setStatus(SmsMessageReportStatus::QUEUED);
