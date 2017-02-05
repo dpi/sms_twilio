@@ -30,5 +30,8 @@
     "drupal/core": "^8.0",
     "drupal/smsframework": "^1.0@beta",
     "twilio/sdk": "5.4.*"
+  },
+  "suggest": {
+    "drupal/smsframework": "Provides integration with SMS Framework"
   }
 }
